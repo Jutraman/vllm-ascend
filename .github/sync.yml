@@ -1,0 +1,22 @@
+name: Sync Fork
+on:
+  schedule:
+    - cron: "0 0 * * *" # 这里设置定时任务，此例为每天凌晨0点执行，可根据需求修改
+jobs:
+  sync:
+    runs - on: ubuntu - latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Git
+        run: |
+          git config user.name "Jutraman"
+          git config user.email "jutraman@hotmail.com"
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/vllm-project/vllm-ascend.git
+      - name: Fetch upstream changes
+        run: git fetch upstream
+      - name: Merge upstream changes
+        run: git merge upstream/main
+      - name: Push changes to fork
+        run: git push origin main
