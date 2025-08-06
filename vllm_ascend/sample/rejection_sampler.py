@@ -4,13 +4,10 @@ from typing import Optional
 import torch
 import torch.nn as nn
 import vllm.v1.sample.rejection_sampler as rs
-from vllm.logger import init_logger
 from vllm.v1.sample.metadata import SamplingMetadata
 from vllm.v1.sample.rejection_sampler import (RejectionSampler, compute_probs,
                                               generate_uniform_probs)
 from vllm.v1.spec_decode.metadata import SpecDecodeMetadata
-
-logger = init_logger(__name__)
 
 PLACEHOLDER_TOKEN_ID = -1
 GREEDY_TEMPERATURE = -1
@@ -432,7 +429,7 @@ def sample_recovered_tokens_pytorch(
 
             if IS_NGRAM:
                 draft_token_id = draft_token_ids[token_idx]
-                orig_prob = target_probs[token_idx, draft_token_id]
+                orig_prob = target_probs[token_idx, draft_token_id].item()
                 target_probs[token_idx, draft_token_id] = 0
                 prob = target_probs[token_idx].clone()
             else:

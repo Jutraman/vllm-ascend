@@ -17,6 +17,7 @@ import torch
 from vllm.logger import logger
 
 import vllm_ascend.envs as envs_ascend
+from vllm_ascend.torchair.torchair_model_runner import NPUTorchairModelRunner
 from vllm_ascend.torchair.utils import (check_kv_cache_bytes_cache_exist,
                                         check_torchair_cache_exist,
                                         delete_torchair_cache_file,
@@ -53,12 +54,8 @@ class NPUTorchairWorker(NPUWorker):
 
         return available_kv_cache_memory
 
-    def _get_max_num_tokens_and_with_prefill(self):
-        """Override _get_max_num_tokens_and_with_prefill to update max_num_tokens."""
-
-        max_num_tokens, with_prefill = super(
-        )._get_max_num_tokens_and_with_prefill()
-        if not with_prefill:
-            max_num_tokens = self.model_runner.select_torchair_padded_batch_size(
-                max_num_tokens)
-        return max_num_tokens, with_prefill
+    def init_device(self):
+        """Override init_device to init torchair model runner"""
+        device = self._init_device()
+        # Init ModelRunner here, so that we have access to self.device.
+        self.model_runner = NPUTorchairModelRunner(self.vllm_config, device)
